@@ -10,9 +10,7 @@ contract CollegeRating {
         string star;
         string feedback;
     }
-
-    // mapping (string => Feedback[]) public rating;
-
+    
     Feedback[] public collegesRatings;
     uint public totalRatings = 0;
 
@@ -28,14 +26,10 @@ contract CollegeRating {
             star: star,
             feedback: feedback
         });
-        // rating[collegeName].push(newFeedback);
+
         collegesRatings.push(newFeedback);
         totalRatings++;
     }
-
-    // function getRatings(string memory collegeName) public view returns (Feedback[] memory){
-    //     return rating[collegeName];
-    // }
 
     function getCollegesRatings() public view returns(Feedback[] memory){
         return collegesRatings;
