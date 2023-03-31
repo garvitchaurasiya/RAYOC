@@ -1,6 +1,6 @@
 import React from 'react'
 import { Input, Menu} from 'semantic-ui-react'
-import {Link} from '../routes';
+import Link from 'next/link'
 
 export default function Navbar() {
   return (
