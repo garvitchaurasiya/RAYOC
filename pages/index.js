@@ -3,7 +3,7 @@ import collegerating from '../ethereum/collegerating';
 import { Card, Button } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css'
 import Layout from '../components/Layout';
-import {Link} from '../routes';
+import Link from 'next/link'
 
 export class RatingIndex extends Component {
 
