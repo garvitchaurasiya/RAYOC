@@ -16,19 +16,11 @@ function Post() {
     });
     const router = useRouter();
     const [searchedColleges, setSearchedColleges] = useState([]);
-    let allColleges = ['a', 'b'];
+    let allColleges = [];
     let searchTerm = "";
 
-    useEffect(() => {
-        async function getAllColleges() {
-
-
-        }
-        getAllColleges();
-    })
-
     const filterContent = (searchTerm) => {
-        const result = allColleges.filter((college) => college.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        let result = allColleges.filter((college) => college.name.toLowerCase().includes(searchTerm.toLowerCase()));
         result = result.slice(0, 10);
         console.log("filtered", result);
         setSearchedColleges(result);
@@ -65,7 +57,7 @@ function Post() {
             from: accounts[0]
         })
 
-        router.pushRoute('/');
+        router.push('/');
     }
 
     const onChange = (e) => {
