@@ -8,19 +8,28 @@ export default function Post() {
         studentName: '',
         collegeName: '',
         star: '5',
-        feedback: ''
+        feedback: '',
+        course: ''
     });
     const router = useRouter();
     const [searchedColleges, setSearchedColleges] = useState([]);
     let allColleges = [];
     let searchTerm = "";
+
+    const [searchedCourses, setSearchedCourses] = useState([]);
+    let allCourses = [];
+    let courseTerm = "";
     
 
-    const filterContent = (searchTerm) => {
-        let result = allColleges.filter((college) => college.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    const filterContent = (term) => {
+        let result = allColleges.filter((college) => college.name.toLowerCase().includes(term.toLowerCase()));
         result = result.slice(0, 10);
-        console.log("filtered", result);
-        setSearchedColleges(result);
+        return result;
+    }
+    const filterContent2 = (term) => {
+        let result = allCourses.filter((course) => course.courseName.toLowerCase().includes(term.toLowerCase()));
+        result = result.slice(0, 10);
+        return result;
     }
 
     const changeSearchTerm = async (e) => {
@@ -38,7 +47,28 @@ export default function Post() {
         })
         const json = await response.json();
         allColleges = json;
-        filterContent(searchTerm);
+        let result = filterContent(searchTerm);
+        setSearchedColleges(result);
+    }
+
+    const changeCourseTerm = async (e) => {
+        courseTerm = e.target.value;
+        if (courseTerm === "") {
+            document.getElementById("collegeResults").style.display = "none";
+        } else {
+            document.getElementById("collegeResults").style.display = "block";
+        }
+        const response = await fetch('http://localhost:3000/api/get_courses', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        const json = await response.json();
+        allCourses = json;
+        console.log(json);
+        let result = filterContent2(courseTerm);
+        setSearchedCourses(result);
     }
 
     const onSubmit = async (event) => {
@@ -48,7 +78,8 @@ export default function Post() {
             state.collegeName,
             state.studentName,
             state.star,
-            state.feedback
+            state.feedback,
+            state.course
         ).send({
             from: accounts[0]
         })
@@ -64,6 +95,12 @@ export default function Post() {
         let input = document.querySelector('#searchBar');
         input.value = name;
         document.getElementById("searchResults").style.display = "none";
+    }
+    const onClickCourse = (name) => {
+        setState({ ...state, collegeName: name })
+        let input = document.querySelector('#collegeSearchBar');
+        input.value = name;
+        document.getElementById("collegeResults").style.display = "none";
     }
     const checkedAnonymous = ()=>{
         if(state.studentName === 'Anonymous'){
@@ -82,7 +119,7 @@ export default function Post() {
                     <div className='w-full'>
                         <div className="border-b border-gray-900/10 pb-12">
                             <h2 className="text-base font-semibold leading-7 text-gray-900">Write a Feedback.</h2>
-                            <p className="text-sm leading-6 text-gray-600">Post a genuine feedback anonymously and keep in mind it can't be deleted.</p>
+                            <p className="text-sm leading-6 text-gray-600">Post a genuine feedback anonymously and keep in mind it can&#39;t be deleted.</p>
 
                             <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                                 <div className="sm:col-span-full">
@@ -118,7 +155,7 @@ export default function Post() {
                                 </div>
 
                                 <div className="sm:col-span-full">
-                                    <label htmlFor="country" className="block text-sm font-medium leading-6 text-gray-900">
+                                    <label htmlFor="collegeName" className="block text-sm font-medium leading-6 text-gray-900">
                                         College Name
                                     </label>
                                     <div className="mt-2">
@@ -134,6 +171,29 @@ export default function Post() {
                                         {searchedColleges.map((ele) => {
                                             return <div key={ele.rank} className="p-2 cursor-pointer hover:bg-gray-200" onClick={() => { onClickCollege(ele.name) }}>
                                                 {ele.name}
+                                            </div>
+                                        })}
+                                    </div>
+                                    </div>
+                                </div>
+
+                                <div className="sm:col-span-full">
+                                    <label htmlFor="course" className="block text-sm font-medium leading-6 text-gray-900">
+                                        Course
+                                    </label>
+                                    <div className="mt-2">
+                                        <input
+                                            name="course"
+                                            id="courseSearchBar"
+                                            autoComplete="off"
+                                            placeholder='Course Name'
+                                            onChange={changeCourseTerm}
+                                            className="block pl-3 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        />
+                                        <div id="collegeResults" className='w-1/2 rounded-md hidden absolute bg-white border-2'>
+                                        {searchedCourses.map((ele, index) => {
+                                            return <div key={index} className="p-2 cursor-pointer hover:bg-gray-200" onClick={() => { onClickCollege(ele.courseName) }}>
+                                                {ele.courseName}
                                             </div>
                                         })}
                                     </div>
@@ -197,37 +257,3 @@ export default function Post() {
         </div>
     )
 }
-
-//     return (
-//         <Layout>
-//             <Form onSubmit={onSubmit}>
-//                 
-//                 <Form.Field>
-//                     <label>College Name</label>
-                    
-//                     <input name="collegeName" id="searchBar" autoComplete="off" placeholder='Search' onChange={changeSearchTerm} />
-
-//                     <div id="searchResults" className='absolute bg-white border-2 w-full'>
-//                         {searchedColleges.map((ele) => {
-//                             return <div key={ele.rank} className="p-2 cursor-pointer hover:bg-gray-200" onClick={() => { onClickCollege(ele.name) }}>
-//                                 {ele.name}
-//                             </div>
-//                         })}
-//                     </div>
-//                 </Form.Field>
-//                 <Form.Field>
-//                     <label>Star</label>
-//                     <input name="star" placeholder='5' onChange={onChange} value={state.star} />
-//                 </Form.Field>
-//                 <Form.Field>
-//                     <label>Feedback</label>
-//                     <textarea name="feedback" onChange={onChange} value={state.feedback}></textarea>
-//                 </Form.Field>
-
-//                 <Button primary>Post</Button>
-
-//             </Form>
-//         </Layout>
-//     )
-// }
-// export default Post;
