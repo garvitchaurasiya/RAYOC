@@ -9,6 +9,7 @@ contract CollegeRating {
         string studentName;
         string star;
         string feedback;
+        string course;
     }
     
     Feedback[] public collegesRatings;
@@ -18,13 +19,15 @@ contract CollegeRating {
         string memory collegeName,
         string memory studentName,
         string memory star,
-        string memory feedback
+        string memory feedback,
+        string memory course
     ) public{
         Feedback memory newFeedback = Feedback({
             collegeName: collegeName,
             studentName: studentName,
             star: star,
-            feedback: feedback
+            feedback: feedback,
+            course: course
         });
 
         collegesRatings.push(newFeedback);
