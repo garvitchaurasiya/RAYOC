@@ -148,7 +148,7 @@ export default function Post() {
                                             <label htmlFor="candidates" className="font-medium text-gray-900">
                                             Be Anonymous
                                             </label>
-                                            <p className="text-gray-500">Check this box if don't want to show name.</p>
+                                            <p className="text-gray-500">Check this box if don&#39;t want to show name.</p>
                                         </div>
                                     </div>
                                 </div>

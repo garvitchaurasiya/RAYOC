@@ -28,7 +28,8 @@ export class RatingIndex extends Component {
     filtered_By_College_Course: [],
     reviewCount: (this.props.count),
     findCollege: "",
-    findCourse: ""
+    findCourse: "",
+    averageRating: 0
   }
   searchTerm = "";
   courseTerm = "";
@@ -91,9 +92,16 @@ export class RatingIndex extends Component {
       return college[0] === name;
     })
     let count = this.filterStars(filtered);
-    this.setState({ ...this.state, reviews: filtered, filtered_By_College_Course: filtered, reviewCount: count, findCollege: name })
-
+    this.setState({
+      ...this.state,
+      reviews: filtered,
+      filtered_By_College_Course: filtered,
+      reviewCount: count[0],
+      findCourse: name,
+      averageRating: count[1]
+    })
   }
+
   onClickCourse = (name) => {
     let input = document.querySelector('#courseSearchBar');
     input.value = name;
@@ -102,23 +110,35 @@ export class RatingIndex extends Component {
       return course[4] === name;
     })
     let count = this.filterStars(filtered);
-    this.setState({ ...this.state, reviews: filtered, filtered_By_College_Course: filtered, reviewCount: count, findCourse: name })
+    this.setState({
+      ...this.state,
+      reviews: filtered,
+      filtered_By_College_Course: filtered,
+      reviewCount: count[0],
+      findCourse: name,
+      averageRating: count[1]
+    })
   }
-  filterStars = (filtered)=>{
+
+  filterStars = (filtered) => {
     let count = [0, 0, 0, 0, 0];
     console.log(filtered);
     filtered.map((ele) => {
       count[ele[2] - 1] = count[ele[2] - 1] + 1;
     })
+    let avg = 0;
+    let total = 0;
     for (var i = 0; i < 5; i++) {
       if (filtered.length === 0)
         count[i] = 0;
       else
         count[i] = Math.floor(count[i] / filtered.length * 100);
+      avg += count[i] * (i + 1);
+      total += count[i];
     }
-    return count;
-    
+    return [count, Math.floor(avg / total)];
   }
+
   sortWithStars(stars) {
     let filtered = this.state.filtered_By_College_Course.filter((data) => {
       return data[2] >= stars && (this.state.findCollege == '' || data[0] == this.state.findCollege);
@@ -202,11 +222,11 @@ export class RatingIndex extends Component {
                     <button onClick={this.clearFilters}>Clear Filters</button>
                   </div>
                   <div>
-                    <Icon name='star' color={('3' >= '1') ? 'yellow' : 'grey'} />
-                    <Icon name='star' color={('3' >= '2') ? 'yellow' : 'grey'} />
-                    <Icon name='star' color={('3' >= '3') ? 'yellow' : 'grey'} />
-                    <Icon name='star' color={('3' >= '4') ? 'yellow' : 'grey'} />
-                    <Icon name='star' color={('3' >= '5') ? 'yellow' : 'grey'} />
+                    <Icon name='star' color={(this.state.averageRating >= 1) ? 'yellow' : 'grey'} />
+                    <Icon name='star' color={(this.state.averageRating >= 2) ? 'yellow' : 'grey'} />
+                    <Icon name='star' color={(this.state.averageRating >= 3) ? 'yellow' : 'grey'} />
+                    <Icon name='star' color={(this.state.averageRating >= 4) ? 'yellow' : 'grey'} />
+                    <Icon name='star' color={(this.state.averageRating >= 5) ? 'yellow' : 'grey'} />
                     Based on {this.state.reviews.length} Reviews
                   </div>
                   <div className='mb-3 mt-6'>
