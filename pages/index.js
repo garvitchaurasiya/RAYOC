@@ -18,21 +18,32 @@ export class RatingIndex extends Component {
       count[i] = Math.floor(count[i] / ratings.length * 100);
     }
     ratings = ratings.slice().reverse();
+
     return { ratings, totalRatings, count };
   }
   state = {
     searchedColleges: [],
+    searchedCourses: [],
     reviews: (this.props.ratings),
+    filtered_By_College_Course: [],
     reviewCount: (this.props.count),
-    findCollege: ""
-  } 
+    findCollege: "",
+    findCourse: ""
+  }
   searchTerm = "";
+  courseTerm = "";
+  allColleges = [];
+  allCourses = [];
 
   filterContent(searchTerm) {
     let result = this.allColleges.filter((college) => college.name.toLowerCase().includes(searchTerm.toLowerCase()));
     result = result.slice(0, 10);
-    console.log("filtered", result);
     this.setState({ ...this.state, searchedColleges: result });
+  }
+  filterContent2 = (term) => {
+    let result = this.allCourses.filter((course) => course.courseName.toLowerCase().includes(term.toLowerCase()));
+    result = result.slice(0, 10);
+    this.setState({ ...this.state, searchedCourses: result });
   }
 
   changeSearchTerm = async (e) => {
@@ -50,37 +61,80 @@ export class RatingIndex extends Component {
     })
     const json = await response.json();
     this.allColleges = json;
-    console.log(this.allColleges);
     this.filterContent(this.searchTerm);
   }
+
+  changeCourseTerm = async (e) => {
+    this.courseTerm = e.target.value;
+    if (this.courseTerm === "") {
+      document.getElementById("courseResults").style.display = "none";
+    } else {
+      document.getElementById("courseResults").style.display = "block";
+    }
+    const response = await fetch('http://localhost:3000/api/get_courses', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    const json = await response.json();
+    this.allCourses = json;
+    this.filterContent2(this.courseTerm);
+  }
+
 
   onClickCollege(name) {
     let input = document.querySelector('#searchBar');
     input.value = name;
     document.getElementById("searchResults").style.display = "none";
     let filtered = this.props.ratings.filter((college) => {
-      return college[0]===name;
+      return college[0] === name;
     })
+    let count = this.filterStars(filtered);
+    this.setState({ ...this.state, reviews: filtered, filtered_By_College_Course: filtered, reviewCount: count, findCollege: name })
+
+  }
+  onClickCourse = (name) => {
+    let input = document.querySelector('#courseSearchBar');
+    input.value = name;
+    document.getElementById("courseResults").style.display = "none";
+    let filtered = this.props.ratings.filter((course) => {
+      return course[4] === name;
+    })
+    let count = this.filterStars(filtered);
+    this.setState({ ...this.state, reviews: filtered, filtered_By_College_Course: filtered, reviewCount: count, findCourse: name })
+  }
+  filterStars = (filtered)=>{
     let count = [0, 0, 0, 0, 0];
+    console.log(filtered);
     filtered.map((ele) => {
       count[ele[2] - 1] = count[ele[2] - 1] + 1;
     })
     for (var i = 0; i < 5; i++) {
-      count[i] = Math.floor(count[i] / filtered.length * 100);
+      if (filtered.length === 0)
+        count[i] = 0;
+      else
+        count[i] = Math.floor(count[i] / filtered.length * 100);
     }
-    this.setState({ ...this.state, reviews: filtered, reviewCount: count, findCollege: name})
-    console.log(this.state, count);
+    return count;
+    
+  }
+  sortWithStars(stars) {
+    let filtered = this.state.filtered_By_College_Course.filter((data) => {
+      return data[2] >= stars && (this.state.findCollege == '' || data[0] == this.state.findCollege);
+    });
+    this.setState({ ...this.state, reviews: filtered })
   }
 
-  sortWithStars(stars){
-
-    console.log(this.props.ratings);
-
-    let filtered = this.props.ratings.filter((data) => {
-      return data[2]>=stars && (this.state.findCollege=='' || data[0]==this.state.findCollege);
-    });
-    console.log("filtered", filtered, this.state)
-    this.setState({...this.state, reviews: filtered})
+  clearFilters = () => {
+    this.setState({
+      searchedColleges: [],
+      searchedCourses: [],
+      reviews: (this.props.ratings),
+      reviewCount: (this.props.count),
+      findCollege: "",
+      findCourse: ""
+    })
   }
 
   render() {
@@ -138,12 +192,15 @@ export class RatingIndex extends Component {
 
               <div className='flex justify-between px-8' style={{ 'marginTop': '-90px' }}>
                 <div className='w-3/5 p-6 border-2 bg-white rounded-xl' style={{ 'width': '55vw' }}>
-                  {this.state.reviews.map((ele, index) => {
-                    return <ReviewCard key={index} author={ele[1]} collegeName={ele[0]} review={ele[3]} stars={ele[2]} />
-                  })}
+                  {this.state.reviews.length !== 0 ? (this.state.reviews.map((ele, index) => {
+                    return <ReviewCard key={index} author={ele[1]} collegeName={ele[0]} review={ele[3]} stars={ele[2]} course={ele[4]} />
+                  })) : <div className='flex justify-center'>No reviews found</div>}
                 </div>
-                <div className='w-2/6 p-6 border-2 bg-white rounded-xl' style={{ 'width': '33vw', 'height': '100vh' }}>
-                  <p className='text-lg font-semibold'>Student Reviews</p>
+                <div className='w-2/6 p-6 border-2 bg-white rounded-xl' style={{ 'width': '33vw' }}>
+                  <div className='flex justify-between'>
+                    <div className='text-lg font-semibold'>Student Reviews</div>
+                    <button onClick={this.clearFilters}>Clear Filters</button>
+                  </div>
                   <div>
                     <Icon name='star' color={('3' >= '1') ? 'yellow' : 'grey'} />
                     <Icon name='star' color={('3' >= '2') ? 'yellow' : 'grey'} />
@@ -191,30 +248,42 @@ export class RatingIndex extends Component {
                   </div>
                   <div className='flex flex-col'>
                     <div className='text-lg font-semibold mt-4 mb-2'>Filter Review</div>
-                    <div>
-                      <input type="radio" id='stars_5' name="sortWithStars" onClick={()=>{this.sortWithStars('5')}}/>
+                    <div className="mt-2" style={{}}>
+                      <input
+                        name="course"
+                        id="courseSearchBar"
+                        autoComplete="off"
+                        placeholder='Course Name'
+                        onChange={this.changeCourseTerm}
+                        className="block pl-3 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      />
+                      <div id="courseResults" className='w-1/4 rounded-md hidden absolute bg-white border-2'>
+                        {this.state.searchedCourses.map((ele, index) => {
+                          return <div key={index} className="p-2 cursor-pointer hover:bg-gray-200" onClick={() => { this.onClickCourse(ele.courseName) }}>
+                            {ele.courseName}
+                          </div>
+                        })}
+                      </div>
+                    </div>
+                    <div className="ml-1 mb-1 mt-4">
+                      <input type="radio" id='stars_5' name="sortWithStars" onClick={() => { this.sortWithStars('5') }} />
                       <label htmlFor='stars_5'>5<Icon name='star' color='black' size='small' /> & above</label>
-
                     </div>
-                    <div>
-                      <input type="radio" id='stars_4' name="sortWithStars" onClick={()=>{this.sortWithStars('4')}}/>
+                    <div className="m-1">
+                      <input type="radio" id='stars_4' name="sortWithStars" onClick={() => { this.sortWithStars('4') }} />
                       <label htmlFor='stars_4'>4<Icon name='star' color='black' size='small' /> & above</label>
-
                     </div>
-                    <div>
-                      <input type="radio" id='stars_3' name="sortWithStars" onClick={()=>{this.sortWithStars('3')}}/>
+                    <div className="m-1">
+                      <input type="radio" id='stars_3' name="sortWithStars" onClick={() => { this.sortWithStars('3') }} />
                       <label htmlFor='stars_3'>3<Icon name='star' color='black' size='small' /> & above</label>
-
                     </div>
-                    <div>
-                      <input type="radio" id='stars_2' name="sortWithStars" onClick={()=>{this.sortWithStars('2')}}/>
+                    <div className="m-1">
+                      <input type="radio" id='stars_2' name="sortWithStars" onClick={() => { this.sortWithStars('2') }} />
                       <label htmlFor='stars_2'>2<Icon name='star' color='black' size='small' /> & above</label>
-
                     </div>
-                    <div>
-                      <input type="radio" id='stars_1' name="sortWithStars" onClick={()=>{this.sortWithStars('1')}}/>
+                    <div className="m-1">
+                      <input type="radio" id='stars_1' name="sortWithStars" onClick={() => { this.sortWithStars('1') }} />
                       <label htmlFor='stars_1'>1<Icon name='star' color='black' size='small' /> & above</label>
-
                     </div>
                   </div>
 

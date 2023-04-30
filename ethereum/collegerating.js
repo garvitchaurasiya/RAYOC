@@ -5,7 +5,7 @@ import CompiledCollegeRating from './build/CollegeRating.json';
 
 const instance = new web3.eth.Contract( // This is our contract instance which refers to a perticular address.
     CompiledCollegeRating.abi,
-    process.env.CONTRACT_ADDRESS
+    '0x8f9cAe01f024A535D05098651D9de9DF9a9C96b1'
 );
 
 export default instance;

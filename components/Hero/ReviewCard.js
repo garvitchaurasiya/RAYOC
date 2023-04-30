@@ -2,7 +2,7 @@ import React from 'react'
 import { Icon } from 'semantic-ui-react'
 
 export default function ReviewCard(props) {
-    const { author, collegeName, stars, review } = props;
+    const { author, collegeName, stars, review, course } = props;
 
     return (
         <div className='py-10 border-b'>
@@ -13,6 +13,7 @@ export default function ReviewCard(props) {
                     </div>
                     <div className='pl-4'>
                         <div className='font-bold'>{collegeName}</div>
+                        <div>{course}</div>
                         <div>
                             <Icon name='star' color={(stars >= '1') ? 'yellow' : 'grey'} size='small' />
                             <Icon name='star' color={(stars >= '2') ? 'yellow' : 'grey'} size='small' />

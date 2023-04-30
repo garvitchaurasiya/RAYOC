@@ -54,9 +54,9 @@ export default function Post() {
     const changeCourseTerm = async (e) => {
         courseTerm = e.target.value;
         if (courseTerm === "") {
-            document.getElementById("collegeResults").style.display = "none";
+            document.getElementById("courseResults").style.display = "none";
         } else {
-            document.getElementById("collegeResults").style.display = "block";
+            document.getElementById("courseResults").style.display = "block";
         }
         const response = await fetch('http://localhost:3000/api/get_courses', {
             method: 'GET',
@@ -66,7 +66,6 @@ export default function Post() {
         })
         const json = await response.json();
         allCourses = json;
-        console.log(json);
         let result = filterContent2(courseTerm);
         setSearchedCourses(result);
     }
@@ -97,10 +96,10 @@ export default function Post() {
         document.getElementById("searchResults").style.display = "none";
     }
     const onClickCourse = (name) => {
-        setState({ ...state, collegeName: name })
-        let input = document.querySelector('#collegeSearchBar');
+        setState({ ...state, course: name })
+        let input = document.querySelector('#courseSearchBar');
         input.value = name;
-        document.getElementById("collegeResults").style.display = "none";
+        document.getElementById("courseResults").style.display = "none";
     }
     const checkedAnonymous = ()=>{
         if(state.studentName === 'Anonymous'){
@@ -190,9 +189,9 @@ export default function Post() {
                                             onChange={changeCourseTerm}
                                             className="block pl-3 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
-                                        <div id="collegeResults" className='w-1/2 rounded-md hidden absolute bg-white border-2'>
+                                        <div id="courseResults" className='w-1/2 rounded-md hidden absolute bg-white border-2'>
                                         {searchedCourses.map((ele, index) => {
-                                            return <div key={index} className="p-2 cursor-pointer hover:bg-gray-200" onClick={() => { onClickCollege(ele.courseName) }}>
+                                            return <div key={index} className="p-2 cursor-pointer hover:bg-gray-200" onClick={() => { onClickCourse(ele.courseName) }}>
                                                 {ele.courseName}
                                             </div>
                                         })}
