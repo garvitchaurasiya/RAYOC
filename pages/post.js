@@ -39,7 +39,7 @@ export default function Post() {
         } else {
             document.getElementById("searchResults").style.display = "block";
         }
-        const response = await fetch('http://localhost:3000/api/get_colleges', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_HOST}/api/get_colleges`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -58,7 +58,7 @@ export default function Post() {
         } else {
             document.getElementById("courseResults").style.display = "block";
         }
-        const response = await fetch('http://localhost:3000/api/get_courses', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_HOST}/api/get_courses`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
